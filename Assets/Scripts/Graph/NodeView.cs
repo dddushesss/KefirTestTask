@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace Graph
 {
     [RequireComponent(typeof(Button))]
-    public class NodeView : MonoBehaviour, ISelectHandler
+    public class NodeView : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
         [SerializeField] private Button _button;
         [SerializeField] private TMP_Text _text;
@@ -15,8 +15,11 @@ namespace Graph
         [SerializeField] private bool isRootNode;
         [SerializeField] private int cost;
         [SerializeField] private NodeView[] connections;
-      
+
+        public NodeView[] Connections => connections;
+
         public event Action OnNodeSelected;
+        public event Action OnDeselected; 
 
         public bool IsRootNode => isRootNode;
 
@@ -31,6 +34,11 @@ namespace Graph
         {
             OnNodeSelected?.Invoke();
         }
+        
+        public void OnDeselect(BaseEventData eventData)
+        {
+            OnDeselected?.Invoke();
+        }
 
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -41,5 +49,6 @@ namespace Graph
             }
         }
 #endif
+       
     }
 }

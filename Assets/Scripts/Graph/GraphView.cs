@@ -10,12 +10,14 @@ namespace Graph
         [SerializeField] private NodeView nodePrefab;
         [SerializeField] private LineRenderer lineRendererPrefab;
         [SerializeField] private InterfaceView interfaceView;
+        [SerializeField] private int startPoints;
 
         private void Start()
         {
             GraphController controller = new GraphController(nodes, lineRendererPrefab);
-            InterfaceController interfaceController = new InterfaceController();
-            
+            InterfaceController interfaceController = new InterfaceController(controller, interfaceView);
+            interfaceController.SubscribeStudyButtons();
+            controller.SetPoint(startPoints);
         }
 
         [EditorButton]
