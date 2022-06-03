@@ -10,11 +10,18 @@ namespace Graph
         [SerializeField] private NodeView nodePrefab;
         [SerializeField] private LineRenderer lineRendererPrefab;
         [SerializeField] private InterfaceView interfaceView;
+        [SerializeField] private Color openedColor;
         [SerializeField] private int startPoints;
+        private Dictionary<NodeView, int> nodesId;
 
         private void Start()
         {
-            GraphController controller = new GraphController(nodes, lineRendererPrefab);
+            nodesId = new Dictionary<NodeView, int>(nodes.Count);
+            for (var i = 0; i < nodes.Count; i++)
+            {
+                nodesId.Add(nodes[i], i);
+            }
+            GraphController controller = new GraphController(nodesId, lineRendererPrefab, openedColor);
             InterfaceController interfaceController = new InterfaceController(controller, interfaceView);
             interfaceController.SubscribeStudyButtons();
             controller.SetPoint(startPoints);

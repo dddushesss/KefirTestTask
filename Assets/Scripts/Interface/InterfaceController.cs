@@ -22,8 +22,11 @@ namespace Interface
             _interfaceView.OnStudyButtonClicked += _graphController.StudyNode;
             _interfaceView.OnForgetButtonClicked += _graphController.ForgetNode;
             _interfaceView.OnForgetAllButtonClicked += _graphController.ForgetAllNodes;
-            _interfaceView.OnPointsAddButtonClicked += _graphController.AddPoint;
-            _graphController.OnPointCountChaged += ChangePointCount;
+            _interfaceView.OnPointsAddButtonClicked +=()=> _graphController.AddPoint(1);
+            _graphController.OnPointCountChanged += ChangePointCount;
+            _graphController.OnNodeSelectedCanStudy += _interfaceView.SetStudyButtonAvailable;
+            _graphController.OnNodeSelectedCanForget += _interfaceView.SetForgetButtonAvailable;
+            
         }
 
         private void ChangePointCount(int points)

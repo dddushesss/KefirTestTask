@@ -29,5 +29,21 @@ namespace Interface
         {
             poitsText.text = points.ToString();
         }
+
+        public void SetStudyButtonAvailable(bool isAvailable)
+        {
+            studyButton.interactable = isAvailable;
+        }
+        
+        public void SetForgetButtonAvailable(bool isAvailable)
+        {
+            forgetButton.interactable = isAvailable;
+        }
+        
+        public void SetForgetAllButtonAvailable(bool isAvailable)
+        {
+            forgetAllButton.interactable = isAvailable;
+        }
+        
     }
 }
