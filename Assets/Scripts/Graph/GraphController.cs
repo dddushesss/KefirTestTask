@@ -13,9 +13,9 @@ namespace Graph
         private Node _rootNode;
         private Node _selectedNode;
         private int _points;
-        private List<Node> _studiedNodes;
-        private List<Node> _closedNodes;
-        private List<Node> _availableToStudyNodes;
+        private HashSet<Node> _studiedNodes;
+        private HashSet<Node> _closedNodes;
+        private HashSet<Node> _availableToStudyNodes;
         private Color _studiedColor;
         private Color _defaultColor;
         public event Action<int> OnPointCountChanged;
@@ -28,9 +28,9 @@ namespace Graph
             Singleton<TimerHelper>.Init("TimerHelper");
 
             _nodes = new Node[nodeViews.Count];
-            _studiedNodes = new List<Node>(nodeViews.Count);
-            _closedNodes = new List<Node>(nodeViews.Count);
-            _availableToStudyNodes = new List<Node>(nodeViews.Count);
+            _studiedNodes = new HashSet<Node>();
+            _closedNodes = new HashSet<Node>();
+            _availableToStudyNodes = new HashSet<Node>();
             _studiedColor = openedColor;
             var connectionList = new List<(int id1, int id2)>();
 
@@ -71,6 +71,7 @@ namespace Graph
                     {
                         _selectedNode = null;
                         OnNodeSelectedCanStudy?.Invoke(false);
+                        OnNodeSelectedCanForget?.Invoke(false);
                     }, 0.1f);
                 };
             }
@@ -113,6 +114,7 @@ namespace Graph
             _selectedNode.SetColor(_defaultColor);
             _studiedNodes.Remove(_selectedNode);
             AddPoint(_selectedNode.Cost);
+            _selectedNode.IsOpened = false;
             foreach (var node1 in _selectedNode.Connections.Where(node => !node.IsOpened))
             {
                 _availableToStudyNodes.Remove(node1);

@@ -59,10 +59,10 @@ namespace Graph
                         curNode = stack.Pop();
                     continue;
                 }
-
-                curNode = openList.PopRandom();
-
+                
                 stack.Push(curNode);
+                curNode = openList.PopRandom();
+                
             } while (stack.Any());
 
             return false;

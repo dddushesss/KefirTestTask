@@ -268,5 +268,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca50058c0d1d49045997c28efa526624, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _button: {fileID: 2867136064490959613}
-  _text: {fileID: 2867136063356143605}
+  button: {fileID: 2867136064490959613}
+  text: {fileID: 2867136063356143605}
+  isRootNode: 0
+  cost: 0
+  connections: []
