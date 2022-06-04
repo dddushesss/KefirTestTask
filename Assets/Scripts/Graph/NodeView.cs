@@ -11,8 +11,8 @@ namespace Graph
     [RequireComponent(typeof(Button))]
     public class NodeView : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
-        [SerializeField] private Button _button;
-        [SerializeField] private TMP_Text _text;
+        [SerializeField] private Button button;
+        [SerializeField] private TMP_Text text;
         [SerializeField] private bool isRootNode;
         [SerializeField] private int cost;
         [SerializeField] private NodeView[] connections;
@@ -22,18 +22,18 @@ namespace Graph
         public event Action OnDeselected;
         public bool IsRootNode => isRootNode;
         public int Cost => cost;
-        public Color Color => _button.colors.normalColor;
+        public Color Color => button.colors.normalColor;
 
         private void Start()
         {
-            _text.text = cost.ToString();
+            text.text = cost.ToString();
         }
 
         public void SetColor(Color color)
         {
-            var normalColor = _button.colors;
+            var normalColor = button.colors;
             normalColor.normalColor = color;
-            _button.colors = normalColor;
+            button.colors = normalColor;
         }
 
         public void OnSelect(BaseEventData eventData)

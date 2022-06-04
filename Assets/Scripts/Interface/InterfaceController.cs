@@ -1,6 +1,4 @@
-﻿using System;
-using Graph;
-using TMPro;
+﻿using Graph;
 
 namespace Interface
 {
@@ -8,7 +6,6 @@ namespace Interface
     {
         private GraphController _graphController;
         private InterfaceView _interfaceView;
-        public event Action<TMP_Text> OnAddButtonClicked;
 
         public InterfaceController(GraphController graphController, InterfaceView interfaceView)
         {
@@ -31,5 +28,6 @@ namespace Interface
         {
             _interfaceView.SetPoints(points);
         }
+        
     }
 }

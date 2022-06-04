@@ -12,16 +12,16 @@ namespace Graph
         [SerializeField] private InterfaceView interfaceView;
         [SerializeField] private Color openedColor;
         [SerializeField] private int startPoints;
-        private Dictionary<NodeView, int> nodesId;
+        private Dictionary<NodeView, int> _nodesId;
 
         private void Start()
         {
-            nodesId = new Dictionary<NodeView, int>(nodes.Count);
+            _nodesId = new Dictionary<NodeView, int>(nodes.Count);
             for (var i = 0; i < nodes.Count; i++)
             {
-                nodesId.Add(nodes[i], i);
+                _nodesId.Add(nodes[i], i);
             }
-            GraphController controller = new GraphController(nodesId, lineRendererPrefab, openedColor);
+            GraphController controller = new GraphController(_nodesId, lineRendererPrefab, openedColor);
             InterfaceController interfaceController = new InterfaceController(controller, interfaceView);
             interfaceController.SubscribeStudyButtons();
             controller.SetPoint(startPoints);

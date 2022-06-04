@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Singleton;
@@ -57,7 +56,7 @@ namespace Graph
                     _rootNode = _nodes[node.Value];
                     _defaultColor = _rootNode.Color;
                     _rootNode.SetColor(openedColor);
-                    _rootNode.isOpened = true;
+                    _rootNode.IsOpened = true;
                     _studiedNodes.Add(_rootNode);
                 }
                 else
@@ -88,7 +87,7 @@ namespace Graph
                 _nodes[connection.id2].AddConnections(_nodes[connection.id1]);
             }
 
-            foreach (var node in _rootNode?.Connections)
+            foreach (var node in _rootNode.Connections)
             {
                 _availableToStudyNodes.Add(node);
             }
@@ -98,12 +97,12 @@ namespace Graph
         public void StudyNode()
         {
             _availableToStudyNodes.Remove(_selectedNode);
-            foreach (var node in _selectedNode.Connections.Where(node => !node.isOpened))
+            foreach (var node in _selectedNode.Connections.Where(node => !node.IsOpened))
             {
                 _availableToStudyNodes.Add(node);
             }
 
-            _selectedNode.isOpened = true;
+            _selectedNode.IsOpened = true;
             _studiedNodes.Add(_selectedNode);
             _selectedNode.SetColor(_studiedColor);
             AddPoint(-_selectedNode.Cost);
@@ -114,7 +113,7 @@ namespace Graph
             _selectedNode.SetColor(_defaultColor);
             _studiedNodes.Remove(_selectedNode);
             AddPoint(_selectedNode.Cost);
-            foreach (var node1 in _selectedNode.Connections.Where(node => !node.isOpened))
+            foreach (var node1 in _selectedNode.Connections.Where(node => !node.IsOpened))
             {
                 _availableToStudyNodes.Remove(node1);
             }
@@ -158,7 +157,7 @@ namespace Graph
                 OnNodeSelectedCanForget?.Invoke(_studiedNodes.Contains(node)
                                                 && node.ID != _rootNode.ID
                                                 && (_selectedNode.Connections
-                                                    .Where(n => n.isOpened).ToList()
+                                                    .Where(n => n.IsOpened).ToList()
                                                     .TrueForAll(n => n.HasConnectionToRoot(node))));
             }, 0.2f);
         }

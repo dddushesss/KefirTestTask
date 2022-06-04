@@ -10,7 +10,7 @@ namespace Graph
     public class Node
     {
         private NodeView _nodeView;
-        public bool isOpened;
+        public bool IsOpened;
 
         public int ID { get; }
 
@@ -24,7 +24,7 @@ namespace Graph
         public Node(NodeView nodeView, int id)
         {
             Connections = new List<Node>();
-            isOpened = false;
+            IsOpened = false;
             _nodeView = nodeView;
             ID = id;
             _nodeView.OnNodeSelected += () => { OnNodeSelected?.Invoke(this); };
@@ -52,7 +52,7 @@ namespace Graph
                 if (curNode._nodeView.IsRootNode || curNode.Connections.Any(n => n._nodeView.IsRootNode))
                     return true;
                 closedList.Add(curNode);
-                var openList = curNode.Connections.Where(n => n.isOpened && !closedList.Contains(n)).ToList();
+                var openList = curNode.Connections.Where(n => n.IsOpened && !closedList.Contains(n)).ToList();
                 if (openList.Count == 0)
                 {
                     if (stack.Any())
