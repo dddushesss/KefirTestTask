@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,9 +16,8 @@ namespace Graph
         [SerializeField] private bool isRootNode;
         [SerializeField] private int cost;
         [SerializeField] private NodeView[] connections;
-        private int _id;
 
-        public NodeView[] Connections => connections;
+        public IEnumerable<NodeView> Connections => connections;
         public event Action OnNodeSelected;
         public event Action OnDeselected;
         public bool IsRootNode => isRootNode;
@@ -34,11 +35,12 @@ namespace Graph
             normalColor.normalColor = color;
             _button.colors = normalColor;
         }
+
         public void OnSelect(BaseEventData eventData)
         {
             OnNodeSelected?.Invoke();
         }
-        
+
         public void OnDeselect(BaseEventData eventData)
         {
             OnDeselected?.Invoke();
@@ -47,12 +49,11 @@ namespace Graph
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-            foreach (var connection in connections)
+            foreach (var connection in connections.Where(node => node != null))
             {
                 Gizmos.DrawLine(transform.position, connection.transform.position);
             }
         }
 #endif
-       
     }
 }
