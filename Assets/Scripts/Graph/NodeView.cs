@@ -21,6 +21,7 @@ namespace Graph
         public event Action OnDeselected;
         public bool IsRootNode => isRootNode;
         public int Cost => cost;
+        public Color Color => _button.colors.normalColor;
 
         private void Start()
         {

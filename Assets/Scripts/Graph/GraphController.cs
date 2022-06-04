@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Singleton;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -16,6 +18,7 @@ namespace Graph
         private List<Node> _closedNodes;
         private List<Node> _availableToStudyNodes;
         private Color _studiedColor;
+        private Color _defaultColor;
         public event Action<int> OnPointCountChanged;
         public event Action<bool> OnNodeSelectedCanStudy;
         public event Action<bool> OnNodeSelectedCanForget;
@@ -23,25 +26,26 @@ namespace Graph
         public GraphController(IReadOnlyDictionary<NodeView, int> nodeViews, LineRenderer lineRendererPrefab,
             Color openedColor)
         {
+            Singleton<TimerHelper>.Init("TimerHelper");
+
             _nodes = new Node[nodeViews.Count];
             _studiedNodes = new List<Node>(nodeViews.Count);
             _closedNodes = new List<Node>(nodeViews.Count);
             _availableToStudyNodes = new List<Node>(nodeViews.Count);
-
             _studiedColor = openedColor;
+            var connectionList = new List<(int id1, int id2)>();
+
             foreach (var node in nodeViews)
             {
                 _nodes[node.Value] = new Node(node.Key, node.Value);
-                var connections = new int[node.Key.Connections.Length];
-                var i = 0;
+
                 foreach (var connection in node.Key.Connections)
                 {
-                    var line = Object.Instantiate(lineRendererPrefab);
+                    var line = Object.Instantiate(lineRendererPrefab, connection.transform);
                     line.SetPositions(new[] { node.Key.transform.position, connection.transform.position });
-                    connections[i++] = nodeViews[connection];
+                    connectionList.Add((node.Value, nodeViews[connection]));
                 }
 
-                _nodes[node.Value].SetConnections(connections);
                 if (node.Key.IsRootNode)
                 {
                     if (_rootNode != null)
@@ -51,7 +55,9 @@ namespace Graph
                     }
 
                     _rootNode = _nodes[node.Value];
+                    _defaultColor = _rootNode.Color;
                     _rootNode.SetColor(openedColor);
+                    _rootNode.isOpened = true;
                     _studiedNodes.Add(_rootNode);
                 }
                 else
@@ -62,48 +68,75 @@ namespace Graph
                 _nodes[node.Value].OnNodeSelected += SelectNode;
                 node.Key.OnDeselected += () =>
                 {
-                    _selectedNode = null;
-                    OnNodeSelectedCanStudy?.Invoke(false);
+                    Singleton<TimerHelper>.Instance.StartTimer(() =>
+                    {
+                        _selectedNode = null;
+                        OnNodeSelectedCanStudy?.Invoke(false);
+                    }, 0.1f);
                 };
             }
 
-            foreach (var nodeId in _rootNode?.Connections)
+            if (_rootNode == null)
             {
-                _availableToStudyNodes.Add(_nodes[nodeId]);
+                Debug.LogError("Не найдено ни одного корневого узла");
+                return;
+            }
+
+            foreach (var connection in connectionList)
+            {
+                _nodes[connection.id1].AddConnections(_nodes[connection.id2]);
+                _nodes[connection.id2].AddConnections(_nodes[connection.id1]);
+            }
+
+            foreach (var node in _rootNode?.Connections)
+            {
+                _availableToStudyNodes.Add(node);
             }
         }
+
 
         public void StudyNode()
         {
             _availableToStudyNodes.Remove(_selectedNode);
-            foreach (var id in _selectedNode.Connections)
+            foreach (var node in _selectedNode.Connections.Where(node => !node.isOpened))
             {
-                _availableToStudyNodes.Add(_nodes[id]);
+                _availableToStudyNodes.Add(node);
             }
+
+            _selectedNode.isOpened = true;
             _studiedNodes.Add(_selectedNode);
             _selectedNode.SetColor(_studiedColor);
-            AddPoint(-_selectedNode.Cost); 
+            AddPoint(-_selectedNode.Cost);
         }
 
         public void ForgetNode()
         {
+            _selectedNode.SetColor(_defaultColor);
+            _studiedNodes.Remove(_selectedNode);
+            AddPoint(_selectedNode.Cost);
+            foreach (var node1 in _selectedNode.Connections.Where(node => !node.isOpened))
+            {
+                _availableToStudyNodes.Remove(node1);
+            }
+
+            _availableToStudyNodes.Add(_selectedNode);
+            OnNodeSelectedCanForget?.Invoke(false);
         }
 
         public void ForgetAllNodes()
         {
-            var selected = _selectedNode;
-            foreach (var node in _studiedNodes)
+            foreach (var node in _studiedNodes.Where(n => n.ID != _rootNode.ID).ToList())
             {
                 _selectedNode = node;
                 ForgetNode();
             }
 
-            _selectedNode = selected;
+            _selectedNode = null;
         }
 
         public void AddPoint(int points)
         {
-            _points+= points;
+            _points += points;
             OnPointCountChanged?.Invoke(_points);
         }
 
@@ -117,9 +150,17 @@ namespace Graph
 
         private void SelectNode(Node node)
         {
-            _selectedNode = node;
-            OnNodeSelectedCanStudy?.Invoke(_availableToStudyNodes.Contains(node));
-            OnNodeSelectedCanForget?.Invoke(_studiedNodes.Contains(node) && node.ID != _rootNode.ID);
+            Singleton<TimerHelper>.Instance.StartTimer(() =>
+            {
+                _selectedNode = node;
+                OnNodeSelectedCanStudy?.Invoke(_availableToStudyNodes.Contains(node)
+                                               && _points - _selectedNode.Cost >= 0);
+                OnNodeSelectedCanForget?.Invoke(_studiedNodes.Contains(node)
+                                                && node.ID != _rootNode.ID
+                                                && (_selectedNode.Connections
+                                                    .Where(n => n.isOpened).ToList()
+                                                    .TrueForAll(n => n.HasConnectionToRoot(node))));
+            }, 0.2f);
         }
     }
 }
